@@ -21,7 +21,6 @@ import {
   Cloud,
   Code2,
   Cpu,
-  Github,
   Globe2,
   Instagram,
   Layers3,
@@ -36,17 +35,21 @@ import {
   Sparkles,
   Star,
   Sun,
-  Twitter,
   Wand2,
   X,
-  Youtube,
   Zap
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, memo } from "react";
 import * as THREE from "three";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const XLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+  </svg>
+);
 
 const navItems = ["About", "Services", "Work", "Clients", "Contact"];
 
@@ -72,28 +75,28 @@ const projects = [
   {
     title: "NovaOps Command Center",
     category: "SaaS",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=75",
     stack: ["Next.js", "AI", "Stripe", "AWS"],
     copy: "An executive operations cockpit for a logistics startup, built around predictive routing and live metrics."
   },
   {
     title: "Auraluxe Brand System",
     category: "Branding",
-    image: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=800&q=75",
     stack: ["Identity", "WebGL", "CMS"],
     copy: "A luxury audio brand launch with immersive product pages and motion-led storytelling."
   },
   {
     title: "PulseAI Growth Engine",
     category: "AI",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=75",
     stack: ["LLM", "Automation", "CRM"],
     copy: "An AI sales assistant that turns inbound leads into qualified opportunities with human-grade handoff."
   },
   {
     title: "Finory Mobile Vault",
     category: "Mobile",
-    image: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1200&q=85",
+    image: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=800&q=75",
     stack: ["React Native", "Security", "UX"],
     copy: "A refined finance app experience with encrypted onboarding and confidence-building product design."
   }
@@ -126,11 +129,11 @@ const choices = [
   "Startup Friendly Pricing"
 ];
 
-function ParticleField() {
+const ParticleField = memo(function ParticleField() {
   const pointsRef = useRef<THREE.Points>(null);
   const particles = useMemo(() => {
-    const positions = new Float32Array(420);
-    for (let i = 0; i < 420; i += 3) {
+    const positions = new Float32Array(200);
+    for (let i = 0; i < 200; i += 3) {
       positions[i] = (Math.random() - 0.5) * 9;
       positions[i + 1] = (Math.random() - 0.5) * 5.5;
       positions[i + 2] = (Math.random() - 0.5) * 5;
@@ -158,7 +161,7 @@ function ParticleField() {
       />
     </points>
   );
-}
+});
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
   const [display, setDisplay] = useState(0);
@@ -222,6 +225,224 @@ function MagneticButton({
   );
 }
 
+function ContactForm() {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    
+    try {
+      const res = await fetch("/api/book-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSuccess(true);
+        (e.target as HTMLFormElement).reset();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <form className="mt-6 grid gap-3" onSubmit={handleSubmit}>
+      {success ? (
+        <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-5 text-center text-green-400">
+          Booking requested successfully! Our team will contact you shortly.
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-2">
+            <input required name="name" aria-label="Name" placeholder="Name" className="contact-input rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+            <input required name="email" type="email" aria-label="Email" placeholder="Email" className="contact-input rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <input required name="phone" type="tel" aria-label="Phone Number" placeholder="Phone Number" className="contact-input rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+            <select required name="service" aria-label="Project type" className="contact-input appearance-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400">
+              <option value="">Select Service</option>
+              {services.map(s => <option key={s.title} value={s.title}>{s.title}</option>)}
+            </select>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <input required name="date" type="date" aria-label="Preferred Date" className="contact-input rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+            <input required name="time" type="time" aria-label="Preferred Time" className="contact-input rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+          </div>
+          <textarea required name="message" aria-label="Project details" placeholder="Project details & requirements" rows={3} className="contact-input resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none transition focus:border-blue-400" />
+          <button disabled={loading} type="submit" className="accent-gradient mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-white disabled:opacity-70">
+            {loading ? "Sending..." : "Book Call"} <Send className="h-4 w-4" />
+          </button>
+        </>
+      )}
+    </form>
+  );
+}
+
+function ComingSoonWrapper({ title, children, show = false }: { title: string, children: React.ReactNode, show?: boolean }) {
+  if (show) return <>{children}</>;
+  
+  return (
+    <div className="mx-auto max-w-7xl">
+      <div data-reveal className="glass flex flex-col items-center justify-center rounded-3xl p-10 text-center md:p-16">
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-blue-400/20 bg-blue-500/10 shadow-[0_0_30px_rgba(0,87,255,0.15)]">
+          <Sparkles className="h-7 w-7 text-blue-300" />
+        </div>
+        <h2 className="font-display mb-3 text-3xl font-bold md:text-4xl">{title}</h2>
+        <p className="max-w-md text-sm leading-6 text-[var(--muted)]">
+          We're currently polishing this section to ensure it meets our premium standards. Check back soon for updates!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const FAQ_DATA = [
+  {
+    answer: "We offer Website Development, SaaS Platforms, UI/UX Design, Branding, AI Integrations, Automation Solutions, Mobile Apps, and Cloud Solutions tailored for modern businesses.",
+    keywords: ["services", "offer", "provide", "solution", "build", "development", "ai", "website", "saas", "branding"]
+  },
+  {
+    answer: "Pricing depends on the services, project scope, features, and complexity you need. Contact us with your requirements for a custom quote.",
+    keywords: ["pricing", "cost", "budget", "charges", "quote", "payment", "rate"]
+  },
+  {
+    answer: "We always try to deliver projects as fast as possible. Timeline depends on the project size, features, revisions, and overall complexity.",
+    keywords: ["time", "duration", "deadline", "delivery", "how long", "complete", "finish"]
+  },
+  {
+    answer: "Just book a call or send us a mail with your project details. Once everything is confirmed, we’ll start the project immediately.",
+    keywords: ["start", "begin", "work together", "process", "onboarding", "contact"]
+  },
+  {
+    answer: "Yes, we work with startups, creators, agencies, and growing businesses to build scalable digital products and systems.",
+    keywords: ["startup", "business", "agency", "founder", "company"]
+  },
+  {
+    answer: "Yes, we provide post-launch support, fixes, improvements, and maintenance depending on the project plan.",
+    keywords: ["support", "maintenance", "bug", "fix", "after delivery", "help"]
+  },
+  {
+    answer: "Yes, we can redesign and modernize existing websites, apps, dashboards, and digital products.",
+    keywords: ["redesign", "improve", "upgrade", "modernize", "existing website"]
+  },
+  {
+    answer: "Yes, we develop AI-powered systems including assistants, automation workflows, AI integrations, and smart business tools.",
+    keywords: ["ai", "chatbot", "automation", "assistant", "machine learning", "smart tools"]
+  }
+];
+
+function AIChatbot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<{role: "ai" | "user", content: React.ReactNode}[]>([
+    { role: "ai", content: "Hi there! I'm the BuildiT assistant. How can I help you today?" }
+  ]);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isOpen]);
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    
+    const userText = input;
+    setMessages(prev => [...prev, { role: "user", content: userText }]);
+    setInput("");
+    
+    setTimeout(() => {
+      const lowerInput = userText.toLowerCase();
+      let matchedAnswer: React.ReactNode = null;
+      
+      for (const faq of FAQ_DATA) {
+        if (faq.keywords.some(kw => lowerInput.includes(kw.toLowerCase()))) {
+          matchedAnswer = faq.answer;
+          break;
+        }
+      }
+      
+      if (!matchedAnswer) {
+        matchedAnswer = (
+          <>
+            Please contact us for more information.<br/><br/>
+            <strong>Phone:</strong> 8260540773<br/>
+            <strong>Email:</strong> connect.buildit@gmail.com
+          </>
+        );
+      }
+      
+      setMessages(prev => [...prev, { role: "ai", content: matchedAnswer }]);
+    }, 500);
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="glass relative flex h-[420px] w-[340px] flex-col overflow-hidden rounded-3xl shadow-2xl md:w-[380px]"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20">
+                  <Bot className="h-4 w-4 text-blue-300" />
+                </div>
+                <span className="font-display font-semibold text-white">BuildiT AI</span>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="rounded-full p-1 transition hover:bg-white/10">
+                <X className="h-4 w-4 text-white/70" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 hide-scrollbar">
+              <div className="flex flex-col gap-3">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${msg.role === 'ai' ? 'self-start bg-white/10 text-white/90' : 'self-end bg-blue-600 text-white'}`}>
+                    {msg.content}
+                  </div>
+                ))}
+                <div ref={endRef} />
+              </div>
+            </div>
+            
+            <div className="border-t border-white/10 bg-black/40 p-3 backdrop-blur-md">
+              <form onSubmit={handleSend} className="relative flex items-center">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type your question..."
+                  className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-4 pr-12 text-sm text-white placeholder-white/40 outline-none transition focus:border-blue-400"
+                />
+                <button type="submit" disabled={!input.trim()} className="absolute right-1 flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white transition disabled:opacity-50 hover:bg-blue-400">
+                  <Send className="h-3.5 w-3.5 ml-0.5" />
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="accent-gradient flex h-14 w-14 items-center justify-center rounded-full shadow-[0_0_40px_rgba(0,87,255,0.38)] transition-transform hover:scale-110 active:scale-95"
+        aria-label="AI chatbot assistant"
+      >
+        {isOpen ? <X className="h-6 w-6 text-white" /> : <Bot className="h-6 w-6 text-white" />}
+      </button>
+    </div>
+  );
+}
+
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -273,8 +494,8 @@ export default function Home() {
             y: 0,
             opacity: 1,
             filter: "blur(0px)",
-            duration: 1,
-            ease: "power3.out",
+            duration: 0.6,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: element,
               start: "top 84%"
@@ -330,15 +551,15 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <header className="fixed left-0 right-0 top-0 z-40 px-4 py-4 md:px-8">
-        <nav className="glass mx-auto flex max-w-7xl items-center justify-between rounded-full px-4 py-3">
-          <a href="#hero" className="flex items-center gap-3">
-            <span className="relative h-10 w-10 overflow-hidden rounded-full border border-white/15 bg-black shadow-[0_0_34px_rgba(0,87,255,0.34)]">
-              <Image src="/buildit-logo.jpg" alt="BuildiT logo" fill sizes="40px" className="object-cover" priority />
+      <header className="fixed left-0 right-0 top-0 z-40 px-4 py-3 md:px-8">
+        <nav className="glass-transparent mx-auto flex max-w-5xl items-center justify-between rounded-full px-4 py-2">
+          <a href="#hero" className="flex items-center gap-2.5">
+            <span className="relative h-8 w-8 overflow-hidden rounded-full border border-white/15 bg-black shadow-[0_0_20px_rgba(0,87,255,0.3)]">
+              <Image src="/buildit-logo.jpg" alt="BuildiT logo" fill sizes="32px" className="object-cover" priority />
             </span>
-            <span className="font-display text-xl font-bold">BuildiT</span>
+            <span className="font-display text-lg font-bold">BuildiT</span>
           </a>
-          <div className="nav-links hidden items-center gap-7 text-sm md:flex">
+          <div className="nav-links hidden items-center gap-6 text-sm md:flex">
             {navItems.map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="transition hover:text-white">
                 {item}
@@ -349,16 +570,16 @@ export default function Home() {
             <button
               aria-label="Toggle theme"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full transition hover:scale-105"
+              className="glass flex h-8 w-8 items-center justify-center rounded-full transition hover:scale-105"
             >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
             </button>
             <button
               aria-label="Open menu"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full md:hidden"
+              className="glass flex h-8 w-8 items-center justify-center rounded-full md:hidden"
             >
-              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              {menuOpen ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
             </button>
           </div>
         </nav>
@@ -368,7 +589,7 @@ export default function Home() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="glass mx-4 mt-3 grid gap-3 rounded-3xl p-4 md:hidden"
+              className="glass-transparent mx-4 mt-3 grid gap-3 rounded-3xl p-4 md:hidden"
             >
               {navItems.map((item) => (
                 <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenuOpen(false)} className="rounded-2xl px-4 py-3 text-white/80">
@@ -380,15 +601,15 @@ export default function Home() {
         </AnimatePresence>
       </header>
 
-      <section id="hero" className="relative min-h-screen overflow-hidden px-4 pb-16 pt-28 md:px-8 md:pt-32">
-        <div className="absolute inset-0 grid-bg opacity-80" />
-        <div className="absolute inset-0">
+      <section id="hero" className="relative overflow-hidden px-4 pb-8 pt-[110px] md:px-8 md:pt-[120px] lg:pb-12 lg:pt-[120px]">
+        {/* <div className="absolute inset-0 grid-bg opacity-80" /> */}
+        {/* <div className="absolute inset-0">
           <Canvas camera={{ position: [0, 0, 4.5], fov: 55 }}>
             <ambientLight intensity={0.8} />
             <ParticleField />
           </Canvas>
-        </div>
-        <motion.div style={{ y: heroY }} className="relative z-10 mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:grid-cols-[1fr_0.92fr]">
+        </div> */}
+        <motion.div style={{ y: heroY }} className="relative z-10 mx-auto grid w-full max-w-7xl items-start gap-8 md:grid-cols-[0.9fr_1.1fr] lg:grid-cols-[1fr_0.92fr] lg:gap-10">
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -403,10 +624,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 40 }}
               transition={{ delay: 0.3, duration: 0.9, ease: "easeOut" }}
-              className="hero-title font-display text-[clamp(3rem,7.6vw,8rem)] font-black leading-[0.88] tracking-normal drop-shadow-[0_0_34px_rgba(255,255,255,0.18)]"
+              className="hero-title font-display text-[clamp(4rem,8vw,9rem)] font-black leading-[0.9] tracking-normal drop-shadow-[0_0_34px_rgba(255,255,255,0.18)]"
             >
-              <span className="block">BuildiT</span>
-              <span className="block text-white/95">Future</span>
+              <span className="block">BuildiT.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 28 }}
@@ -414,7 +634,7 @@ export default function Home() {
               transition={{ delay: 0.48, duration: 0.8 }}
               className="hero-copy mt-6 max-w-2xl text-balance text-lg leading-8 md:text-2xl"
             >
-              We Build Digital Experiences That Define The Future.
+              Crafting world-class software and premium digital experiences for ambitious brands.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 28 }}
@@ -429,83 +649,94 @@ export default function Home() {
                 Book a Consultation <CalendarDays className="h-4 w-4" />
               </MagneticButton>
             </motion.div>
+
+            {/* Compact Trust Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
+              transition={{ delay: 0.75, duration: 0.8 }}
+              className="mt-10 flex items-center gap-5"
+            >
+              {/* Overlapping Placeholders */}
+              <div className="flex -space-x-3">
+                {[...Array(5)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`relative h-11 w-11 overflow-hidden rounded-full border-2 border-black bg-[#151c2f] flex items-center justify-center ${i === 0 ? 'shadow-[0_0_15px_rgba(59,130,246,0.6)] ring-1 ring-blue-500/50' : 'shadow-md'}`}
+                    style={{ zIndex: 5 - i }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Text and Stars */}
+              <div className="flex flex-col">
+                <span className="text-[13px] font-medium text-white/90 mb-0.5">Trusted by 50+ Happy Clients</span>
+                <div className="flex items-center gap-0.5 text-[#fbbf24] text-[15px]">
+                  ★★★★★
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 38 }}
-            animate={{ opacity: loaded ? 1 : 0, scale: loaded ? 1 : 0.92, y: loaded ? 0 : 38 }}
-            transition={{ delay: 0.55, duration: 1 }}
-            className="relative min-h-[360px] md:min-h-[460px] lg:min-h-[500px]"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: loaded ? 1 : 0, scale: loaded ? 1 : 0.95 }}
+            transition={{ delay: 0.55, duration: 1.2, ease: "easeOut" }}
+            className="relative flex min-h-[400px] w-full items-start justify-center perspective-[1000px] pt-12 md:min-h-[500px] lg:min-h-[560px] lg:pt-[72px]"
           >
-            <div className="absolute left-8 top-8 h-72 w-72 rounded-full bg-blue-600/16 blur-3xl" />
-            <div className="absolute bottom-10 right-8 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+            {/* The Glowing Orb */}
             <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-              className="glass glow-border absolute inset-x-0 top-0 overflow-hidden rounded-[2rem] border-white/20 bg-white/[0.08] p-3 md:p-4 lg:p-5"
+              animate={{ 
+                scale: [1, 1.05, 1],
+                opacity: [0.5, 0.8, 0.5],
+              }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              className="absolute h-[280px] w-[280px] rounded-full bg-gradient-to-tr from-blue-700 via-blue-400 to-white/20 blur-[80px] md:h-[400px] md:w-[400px]"
+            />
+            {/* Inner Core Glow */}
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 90, 0]
+              }}
+              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+              className="absolute h-[150px] w-[150px] rounded-full bg-blue-300/30 blur-[40px] md:h-[220px] md:w-[220px]"
+            />
+            
+            {/* Parallax Container */}
+            <motion.div
+              whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className="relative z-10 w-full max-w-[320px] md:max-w-[380px] lg:max-w-md"
             >
-              <div className="relative h-[330px] overflow-hidden rounded-[1.55rem] border border-white/10 bg-[#070912] text-white md:h-[400px] lg:h-[430px]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(0,87,255,0.34),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.12),transparent_30%)]" />
-                <div className="absolute inset-0 grid-bg opacity-45" />
-                <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6 lg:p-7">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-white/58">BuildiT OS</p>
-                      <p className="mt-2 font-display text-xl font-semibold md:text-2xl">Launch dashboard</p>
+              {/* Main Glass Card */}
+              <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-6 shadow-2xl backdrop-blur-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-transparent opacity-50" />
+                
+                {/* Inner content simulating AI UI */}
+                <div className="relative z-20 flex flex-col gap-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20 shadow-[0_0_15px_rgba(0,87,255,0.3)]">
+                        <Sparkles className="h-5 w-5 text-blue-300" />
+                      </div>
+                      <div>
+                        <p className="font-display font-semibold text-white/90">BuildiT Studio</p>
+                        <p className="text-xs text-white/50">Digital Excellence</p>
+                      </div>
                     </div>
-                    <span className="rounded-full border border-blue-400/25 bg-blue-500/10 px-3 py-1 text-xs text-blue-100">Ready</span>
+                    <div className="flex h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.8)]" />
                   </div>
-
-                  <div className="grid gap-4 md:grid-cols-[1fr_0.8fr]">
-                    <div className="rounded-3xl border border-white/12 bg-white/[0.075] p-5">
-                      <div className="mb-5 flex items-center justify-between">
-                        <span className="text-sm text-white/55">Product momentum</span>
-                        <span className="text-sm text-blue-200">+42%</span>
-                      </div>
-                      <div className="flex h-28 items-end gap-2 md:h-36 md:gap-3 lg:h-40">
-                        {[54, 84, 68, 112, 92, 138, 124].map((height, index) => (
-                          <motion.div
-                            key={`${height}-${index}`}
-                            initial={{ height: 0 }}
-                            animate={{ height }}
-                            transition={{ delay: 1.9 + index * 0.08, duration: 0.9, ease: "easeOut" }}
-                            className="flex-1 rounded-t-2xl bg-gradient-to-t from-blue-950 via-blue-600 to-white shadow-[0_0_26px_rgba(0,87,255,0.32)]"
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 md:gap-4">
-                      {["Strategy", "Interface", "Engineering"].map((item, index) => (
-                        <div key={item} className="rounded-2xl border border-white/12 bg-white/[0.075] p-4">
-                          <div className="mb-3 flex items-center justify-between text-sm">
-                            <span className="text-white/75">{item}</span>
-                            <Check className="h-4 w-4 text-blue-200" />
-                          </div>
-                          <div className="h-1.5 rounded-full bg-white/10">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${78 + index * 7}%` }}
-                              transition={{ delay: 2.05 + index * 0.12, duration: 0.9 }}
-                              className="h-full rounded-full accent-gradient"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 md:gap-3">
-                    {[
-                      ["12d", "Avg launch"],
-                      ["98", "Perf score"],
-                      ["24/7", "Support"]
-                    ].map(([value, label]) => (
-                      <div key={label} className="rounded-2xl border border-white/12 bg-white/[0.075] p-4">
-                        <p className="font-display text-xl font-bold md:text-2xl">{value}</p>
-                        <p className="mt-1 text-xs text-white/45">{label}</p>
-                      </div>
-                    ))}
+                  
+                  <div className="flex flex-col gap-4 py-2">
+                    <h3 className="font-display text-3xl font-bold text-white leading-tight">
+                      Building the<br /><span className="text-blue-400">Future, Together</span>
+                    </h3>
+                    <p className="text-sm text-white/60 leading-relaxed pr-4">
+                      We craft digital products that help brands stand out and scale faster.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -514,26 +745,33 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <section id="about" className="relative px-4 py-24 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr]">
+
+
+      <section id="about" className="relative px-4 pb-12 pt-8 md:px-6 lg:pb-16 lg:pt-12">
+        <div className="mx-auto max-w-4xl text-center">
           <div data-reveal>
             <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">Who We Are</p>
-            <h2 className="font-display text-4xl font-bold md:text-6xl">A startup studio for ambitious digital products.</h2>
-            <p className="mt-6 text-lg leading-8 text-[var(--muted)]">
+            <h2 className="font-display text-3xl font-bold md:text-5xl">A startup studio for ambitious digital products.</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
               BuildiT blends product strategy, premium interface design, scalable engineering, AI integrations, and automation systems for founders who need more than a generic website.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {counters.map((counter) => (
-              <div key={counter.label} data-reveal className="glass rounded-3xl p-6">
-                <p className="stat-number font-display text-4xl font-bold">
-                  <AnimatedNumber value={counter.numeric} suffix="+" />
-                </p>
-                <p className="mt-3 text-sm text-[var(--muted)]">{counter.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
+        
+        <div className="mx-auto mt-16 mb-8 grid max-w-4xl grid-cols-2 gap-8 lg:grid-cols-4">
+          {[
+            { label: "Projects Completed", value: "Coming Soon" },
+            { label: "Happy Clients", value: "Coming Soon" },
+            { label: "Years of Experience", value: "Coming Soon" },
+            { label: "Countries Served", value: "Coming Soon" },
+          ].map((stat, i) => (
+            <div key={i} data-reveal className="flex flex-col items-center justify-center text-center">
+              <span className="font-display text-xl font-bold tracking-tight text-white md:text-2xl">{stat.value}</span>
+              <span className="mt-2 text-sm text-[var(--muted)]">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+
         <div className="mx-auto mt-16 grid max-w-7xl gap-4 md:grid-cols-3">
           {["Discovery", "Prototype", "Scale"].map((step, index) => (
             <div key={step} data-reveal className="glass rounded-3xl p-6">
@@ -549,30 +787,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="services" className="px-4 py-24 md:px-8">
+      <section id="services" className="px-4 py-12 md:px-6 lg:py-16">
         <div className="mx-auto max-w-7xl">
-          <div data-reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div data-reveal className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">How Can We Help You</p>
-              <h2 className="font-display text-4xl font-bold md:text-6xl">Services built for velocity and elegance.</h2>
+              <h2 className="font-display text-3xl font-bold md:text-5xl">Services built for velocity and elegance.</h2>
             </div>
             <p className="max-w-xl text-[var(--muted)]">Every engagement combines taste, technology, and operational clarity so your product feels expensive and performs seriously.</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2">
             {services.map((service) => {
               const Icon = service.icon;
               return (
                 <motion.article
                   key={service.title}
                   data-reveal
-                  whileHover={{ y: -10, rotateX: 4, rotateY: -4 }}
-                  className="glass glow-border min-h-64 rounded-3xl p-6 transition"
+                  whileHover={{ y: -2, scale: 1.01 }}
+                  className="service-card glass glow-border group relative flex items-center gap-4 overflow-hidden rounded-[1.25rem] p-4 transition-all duration-300 md:p-5"
                 >
-                  <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                    <Icon className="service-icon h-6 w-6" />
+                  <div className="relative h-11 w-11 shrink-0">
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-400/20 to-transparent blur-md transition-all duration-500 group-hover:bg-blue-400/40" />
+                    <div className="relative flex h-full w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
+                      <Icon className="service-icon h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                    </div>
                   </div>
-                  <h3 className="font-display text-xl font-semibold">{service.title}</h3>
-                  <p className="service-copy mt-4 text-sm leading-6">{service.copy}</p>
+                  <div>
+                    <h3 className="font-display text-base font-semibold transition-colors duration-300 group-hover:text-blue-100">{service.title}</h3>
+                    <p className="service-copy mt-1 line-clamp-1 text-xs leading-5 text-[var(--muted)] transition-colors duration-300 group-hover:text-white/80">{service.copy}</p>
+                  </div>
                 </motion.article>
               );
             })}
@@ -580,19 +823,20 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="work" className="px-4 py-24 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div data-reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      <section id="work" className="px-4 py-12 md:px-6 lg:py-16">
+        <ComingSoonWrapper title="Our Work">
+          <div className="mx-auto max-w-7xl">
+            <div data-reveal className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">Our Work</p>
-              <h2 className="font-display text-4xl font-bold md:text-6xl">Cinematic products with measurable impact.</h2>
+              <h2 className="font-display text-3xl font-bold md:text-5xl">Cinematic products with measurable impact.</h2>
             </div>
-            <div className="glass flex flex-wrap gap-2 rounded-full p-2">
+            <div className="glass flex max-w-full flex-nowrap gap-2 overflow-x-auto rounded-full p-2 hide-scrollbar">
               {filters.map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`rounded-full px-4 py-2 text-sm transition ${activeFilter === filter ? "accent-gradient text-white" : "text-white/60 hover:text-white"}`}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${activeFilter === filter ? "accent-gradient text-white" : "text-white/60 hover:text-white"}`}
                 >
                   {filter}
                 </button>
@@ -632,13 +876,15 @@ export default function Home() {
             </AnimatePresence>
           </motion.div>
         </div>
+        </ComingSoonWrapper>
       </section>
 
-      <section id="clients" className="px-4 py-24 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div data-reveal className="text-center">
+      <section id="clients" className="px-4 py-12 md:px-6 lg:py-16">
+        <ComingSoonWrapper title="Happy Clients">
+          <div className="mx-auto max-w-7xl">
+            <div data-reveal className="text-center">
             <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">Happy Clients</p>
-            <h2 className="font-display text-4xl font-bold md:text-6xl">Trusted by teams building their next chapter.</h2>
+            <h2 className="font-display text-3xl font-bold md:text-5xl">Trusted by teams building their next chapter.</h2>
           </div>
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
             {testimonials.map((item, index) => (
@@ -674,9 +920,10 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
+        </ComingSoonWrapper>
       </section>
 
-      <section className="relative px-4 py-24 md:px-8">
+      <section className="relative px-4 py-12 md:px-6 lg:py-16">
         <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
           {[
@@ -695,115 +942,114 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-24 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-          <div data-reveal>
-            <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">Why Choose BuildiT</p>
-            <h2 className="font-display text-4xl font-bold md:text-6xl">Built like a product team. Polished like a luxury studio.</h2>
+      <section className="px-4 py-12 md:px-6 lg:py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div data-reveal className="sticky top-32 h-fit">
+            <p className="mb-4 font-display text-sm font-semibold uppercase tracking-[0.26em] text-blue-400/80">Why Choose BuildiT</p>
+            <h2 className="font-display text-4xl font-bold leading-[1.1] md:text-5xl lg:text-[3.5rem] tracking-tight">
+              Built like a product team.<br />
+              <span className="text-white/30">Polished like a luxury studio.</span>
+            </h2>
           </div>
-          <div className="space-y-3">
-            {choices.map((choice, index) => (
-              <div key={choice} data-reveal className="glass overflow-hidden rounded-3xl">
-                <button onClick={() => setOpenChoice(openChoice === index ? -1 : index)} className="flex w-full items-center justify-between gap-4 p-5 text-left">
-                  <span className="font-display text-xl font-semibold">{choice}</span>
-                  <ChevronDown className={`h-5 w-5 transition ${openChoice === index ? "rotate-180" : ""}`} />
+          <div className="flex flex-col border-y border-white/10 divide-y divide-white/10">
+            {choices.map((choice, index) => {
+              const isOpen = openChoice === index;
+              return (
+              <div key={choice} data-reveal className="group">
+                <button onClick={() => setOpenChoice(isOpen ? -1 : index)} className="flex w-full items-center justify-between gap-4 py-6 md:py-8 text-left outline-none">
+                  <span className={`font-display text-2xl md:text-3xl font-semibold transition-colors duration-300 ${isOpen ? 'text-white' : 'text-white/40 group-hover:text-white/80'}`}>{choice}</span>
+                  <div className={`flex shrink-0 items-center justify-center transition-colors duration-300 ${isOpen ? 'text-blue-400' : 'text-white/30 group-hover:text-white/60'}`}>
+                    <ChevronDown className={`h-6 w-6 transition-transform duration-500 ${isOpen ? "rotate-180" : ""}`} />
+                  </div>
                 </button>
                 <AnimatePresence>
-                  {openChoice === index && (
-                    <motion.p
+                  {isOpen && (
+                    <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="px-5 pb-5 text-sm leading-6 text-[var(--muted)]"
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      BuildiT combines senior execution, transparent communication, reusable systems, and premium design taste so your product can launch confidently and keep evolving.
-                    </motion.p>
+                      <p className="pb-6 md:pb-8 pt-0 text-base md:text-lg leading-relaxed text-white/50 max-w-2xl">
+                        BuildiT combines senior execution, transparent communication, reusable systems, and premium design taste so your product can launch confidently and keep evolving.
+                      </p>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </section>
 
-      <section id="contact" className="px-4 py-24 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div data-reveal className="glass rounded-[2rem] p-6 md:p-9">
-            <p className="mb-4 font-display text-sm uppercase tracking-[0.26em] text-blue-300">Contact</p>
-            <h2 className="font-display text-4xl font-bold md:text-6xl">Tell us what you want to build.</h2>
-            <form className="mt-9 grid gap-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <input aria-label="Name" placeholder="Name" className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none transition focus:border-blue-400" />
-                <input aria-label="Email" placeholder="Email" className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none transition focus:border-blue-400" />
-              </div>
-              <input aria-label="Project type" placeholder="Project type" className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none transition focus:border-blue-400" />
-              <textarea aria-label="Project details" placeholder="Project details" rows={5} className="resize-none rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none transition focus:border-blue-400" />
-              <button type="button" className="accent-gradient inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 font-semibold text-white">
-                Send Message <Send className="h-4 w-4" />
-              </button>
-            </form>
+      <section id="contact" className="px-4 py-12 md:px-6 lg:py-16">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          
+          {/* Card 1: Book a Call */}
+          <div data-reveal className="glass rounded-[2rem] p-6 md:p-8">
+            <p className="mb-2 font-display text-xs uppercase tracking-[0.2em] text-blue-300">Book a Call</p>
+            <h2 className="font-display text-2xl font-bold md:text-3xl">Discuss your project with us.</h2>
+            <ContactForm />
           </div>
-          <div className="grid gap-5">
-            <div data-reveal className="glass rounded-[2rem] p-6">
-              <h3 className="font-display text-2xl font-semibold">Book a strategy call</h3>
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                {["Today", "Wed", "Fri"].map((day) => (
-                  <button key={day} className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm transition hover:border-blue-400 hover:text-blue-100">{day}<br /><span className="text-white/45">30 min</span></button>
-                ))}
-              </div>
-            </div>
-            <div data-reveal className="glass relative min-h-72 overflow-hidden rounded-[2rem] p-6">
-              <div className="absolute inset-0 grid-bg opacity-70" />
-              <div className="relative z-10">
-                <h3 className="font-display text-2xl font-semibold">Global delivery. Local clarity.</h3>
-                <p className="mt-3 text-sm text-[var(--muted)]">Remote-first studio serving startups across product, brand, and automation.</p>
-              </div>
-              <motion.div animate={{ scale: [1, 1.18, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2.4 }} className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-blue-400/45" />
-            </div>
-            <div data-reveal className="glass grid gap-3 rounded-[2rem] p-6 text-sm text-[var(--muted)]">
-              <a href="mailto:hello@buildit.studio" className="flex items-center gap-3"><Mail className="h-4 w-4 text-blue-200" /> hello@buildit.studio</a>
-              <a href="tel:+919876543210" className="flex items-center gap-3"><Phone className="h-4 w-4 text-blue-200" /> +91 98765 43210</a>
-              <span className="flex items-center gap-3"><Globe2 className="h-4 w-4 text-blue-200" /> Building worldwide from India</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <footer className="px-4 pb-8 md:px-8">
-        <div className="glass mx-auto max-w-7xl rounded-[2rem] p-6">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-            <a href="#hero" className="flex items-center gap-3">
-              <span className="relative h-11 w-11 overflow-hidden rounded-full border border-white/15 bg-black shadow-[0_0_30px_rgba(0,87,255,0.3)]">
-                <Image src="/buildit-logo.jpg" alt="BuildiT logo" fill sizes="44px" className="object-cover" />
-              </span>
-              <span className="font-display text-2xl font-bold">BuildiT</span>
+          {/* Card 2: Mail Us */}
+          <div data-reveal className="glass relative flex flex-col items-center justify-between gap-4 overflow-hidden rounded-[2rem] p-6 text-center md:flex-row md:px-8 md:py-6 md:text-left">
+            <div className="absolute inset-0 grid-bg opacity-30" />
+            
+            <div className="relative z-10 flex flex-col items-center gap-4 md:flex-row md:gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-blue-400/20 bg-blue-500/10 shadow-[0_0_20px_rgba(0,87,255,0.15)]">
+                <Mail className="h-6 w-6 text-blue-300" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold">Mail Us</h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">Prefer direct communication? Drop us an email.</p>
+              </div>
+            </div>
+            
+            <a 
+              href="mailto:connect.buildit@gmail.com" 
+              className="accent-gradient group relative z-10 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full px-8 text-sm font-semibold text-white shadow-[0_0_20px_rgba(0,87,255,0.25)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,87,255,0.4)] md:w-auto"
+            >
+              Send Email
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
-            <div className="flex flex-wrap gap-3">
-              {[Instagram, Linkedin, Github, Youtube, Twitter].map((Icon, index) => (
-                <a key={index} href="#" aria-label="Social media" className="glass flex h-11 w-11 items-center justify-center rounded-full transition hover:scale-110 hover:text-blue-200">
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
+          </div>
+
+        </div>
+      </section>
+
+      <footer className="px-4 pb-6 md:px-8">
+        <div className="glass-transparent mx-auto max-w-5xl rounded-3xl p-5">
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+            <a href="#hero" className="flex items-center gap-2.5">
+              <span className="relative h-9 w-9 overflow-hidden rounded-full border border-white/15 bg-black shadow-[0_0_20px_rgba(0,87,255,0.3)]">
+                <Image src="/buildit-logo.jpg" alt="BuildiT logo" fill sizes="36px" className="object-cover" />
+              </span>
+              <span className="font-display text-xl font-bold">BuildiT</span>
+            </a>
+            <div className="flex flex-wrap gap-2.5">
+              {[
+                { Icon: Instagram, link: "https://www.instagram.com/buildit.co.in/" },
+                { Icon: Linkedin, link: "https://www.linkedin.com/in/buildit-services-1a7852411" },
+                { Icon: XLogo, link: "#" }
+              ].map((social, index) => {
+                const Icon = social.Icon;
+                return (
+                  <a key={index} href={social.link} target="_blank" rel="noreferrer" aria-label="Social media" className="glass flex h-9 w-9 items-center justify-center rounded-full transition hover:scale-110 hover:text-blue-200">
+                    <Icon className="h-4 w-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
-          <div className="mt-8 flex flex-col justify-between gap-4 border-t border-white/10 pt-5 text-sm text-[var(--muted)] md:flex-row">
+          <div className="mt-6 flex flex-col justify-between gap-4 border-t border-white/10 pt-4 text-[13px] text-[var(--muted)] md:flex-row">
             <p>© 2026 BuildiT. All rights reserved.</p>
-            <a href="#hero" className="text-blue-200">Back to top</a>
+            <a href="#hero" className="transition hover:text-blue-200">Back to top</a>
           </div>
         </div>
       </footer>
 
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
-        <motion.a
-          animate={{ y: [0, -8, 0] }}
-          transition={{ repeat: Infinity, duration: 3 }}
-          href="#contact"
-          className="accent-gradient flex h-14 w-14 items-center justify-center rounded-full shadow-[0_0_40px_rgba(0,87,255,0.38)]"
-          aria-label="AI chatbot assistant"
-        >
-          <Bot className="h-6 w-6 text-white" />
-        </motion.a>
-      </div>
+      <AIChatbot />
 
       <AnimatePresence>
         {selectedProject && (

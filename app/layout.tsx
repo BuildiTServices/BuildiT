@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     "digital innovation"
   ],
   authors: [{ name: "BuildiT" }],
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/buildit-logo.jpg",
+  },
   openGraph: {
     title: "BuildiT | Digital Experiences That Define The Future",
     description:
