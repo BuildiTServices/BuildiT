@@ -444,7 +444,6 @@ function AIChatbot() {
 }
 
 export default function Home() {
-  const [loaded, setLoaded] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
@@ -459,10 +458,7 @@ export default function Home() {
   const filters = ["All", ...Array.from(new Set(projects.map((project) => project.category)))];
   const filteredProjects = activeFilter === "All" ? projects : projects.filter((project) => project.category === activeFilter);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setLoaded(true), 1750);
-    return () => window.clearTimeout(timer);
-  }, []);
+
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -505,7 +501,7 @@ export default function Home() {
       });
     });
     return () => ctx.revert();
-  }, [loaded]);
+  }, []);
 
   function handlePointer(event: React.PointerEvent<HTMLDivElement>) {
     mouseX.set(event.clientX);
@@ -523,33 +519,7 @@ export default function Home() {
         style={{ x: smoothX, y: smoothY, translateX: "-50%", translateY: "-50%" }}
       />
 
-      <AnimatePresence>
-        {!loaded && (
-          <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030409]"
-            exit={{ opacity: 0, transition: { duration: 0.75, ease: "easeInOut" } }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-                className="mx-auto mb-7 h-16 w-16 rounded-full border border-white/10 border-t-blue-500"
-              />
-              <motion.p
-                initial={{ letterSpacing: "0.08em" }}
-                animate={{ letterSpacing: "0.22em" }}
-                className="font-display text-sm uppercase text-white/70"
-              >
-                Initializing BuildiT
-              </motion.p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       <header className="fixed left-0 right-0 top-0 z-40 px-4 py-3 md:px-8">
         <nav className="glass-transparent mx-auto flex max-w-5xl items-center justify-between rounded-full px-4 py-2">
@@ -613,7 +583,7 @@ export default function Home() {
           <div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               className="glass hero-kicker mb-7 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm"
             >
@@ -622,7 +592,7 @@ export default function Home() {
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 40 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.9, ease: "easeOut" }}
               className="hero-title font-display text-[clamp(4rem,8vw,9rem)] font-black leading-[0.9] tracking-normal drop-shadow-[0_0_34px_rgba(255,255,255,0.18)]"
             >
@@ -630,7 +600,7 @@ export default function Home() {
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 28 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.48, duration: 0.8 }}
               className="hero-copy mt-6 max-w-2xl text-balance text-lg leading-8 md:text-2xl"
             >
@@ -638,7 +608,7 @@ export default function Home() {
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 28 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.62, duration: 0.8 }}
               className="mt-7 flex flex-col gap-4 sm:flex-row"
             >
@@ -653,7 +623,7 @@ export default function Home() {
             {/* Compact Trust Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.75, duration: 0.8 }}
               className="mt-10 flex items-center gap-5"
             >
@@ -682,7 +652,7 @@ export default function Home() {
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: loaded ? 1 : 0, scale: loaded ? 1 : 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.55, duration: 1.2, ease: "easeOut" }}
             className="relative flex min-h-[400px] w-full items-start justify-center perspective-[1000px] pt-12 md:min-h-[500px] lg:min-h-[560px] lg:pt-[72px]"
           >
